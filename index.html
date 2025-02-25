@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spacebar CPS Counter</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        label {
+            font-size: 1.2em;
+        }
+        input {
+            font-size: 1em;
+            padding: 10px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            width: 100px;
+        }
+        button {
+            font-size: 1em;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            background: #ff6f61;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #ff3b2f;
+        }
+        #counter {
+            font-size: 3em;
+            margin: 20px;
+            color: #ff6f61;
+        }
+        #timer {
+            font-size: 1.5em;
+            margin: 10px;
+        }
+        #cps {
+            font-size: 1.5em;
+            margin: 20px;
+            color: #00ff88;
+        }
+        .disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Spacebar Click Counter</h1>
+        <label for="timeInput">Set Time (seconds): </label>
+        <input type="number" id="timeInput" min="1" value="10">
+        <button id="startButton">Start</button>
+
+        <div id="counter">Clicks: 0</div>
+        <div id="timer">Time Remaining: 0s</div>
+        <div id="cps"></div>
+    </div>
+
+    <script>
+        let clickCount = 0;
+        let timer;
+        let timeLimit;
+        let isCounting = false;
+        let startTime;
+
+        function startCounter() {
+            if (isCounting) return;
+
+            clickCount = 0;
+            isCounting = true;
+            timeLimit = parseInt(document.getElementById('timeInput').value);
+            startTime = Date.now();
+            document.getElementById('counter').textContent = 'Clicks: 0';
+            document.getElementById('cps').textContent = '';
+            document.getElementById('startButton').classList.add('disabled');
+
+            updateTimer();
+
+            timer = setInterval(() => {
+                const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                if (elapsedTime >= timeLimit) {
+                    clearInterval(timer);
+                    isCounting = false;
+                    const cps = clickCount / timeLimit;
+                    document.getElementById('cps').textContent = `CPS: ${cps.toFixed(2)}`;
+                    document.getElementById('startButton').classList.remove('disabled');
+                } else {
+                    updateTimer();
+                }
+            }, 100);
+        }
+
+        function updateTimer() {
+            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+            const remainingTime = timeLimit - elapsedTime;
+            document.getElementById('timer').textContent = `Time Remaining: ${remainingTime}s`;
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space' && isCounting) {
+                clickCount++;
+                document.getElementById('counter').textContent = `Clicks: ${clickCount}`;
+            }
+        });
+
+        document.getElementById('startButton').addEventListener('click', startCounter);
+    </script>
+
+</body>
+</html>
